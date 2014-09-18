@@ -30,7 +30,7 @@ import sys
 
 from contextlib import contextmanager
 from . import filesystem
-from .. import ical
+from .. import config, ical
 
 
 def _to_filesystem_name(name):
@@ -160,6 +160,12 @@ class Collection(filesystem.Collection):
             return
 
         os.remove(path)
+
+        if filesystem.GIT_REPOSITORY:
+            filesystem.GIT_REPOSITORY.stage([path])
+            committer = config.get("git", "committer")
+            commitmessage = "Remove %s" % name
+            filesystem.GIT_REPOSITORY.do_commit(commitmessage, committer=committer)
 
     def replace(self, name, text):
         self._write_item(name, text, False)
