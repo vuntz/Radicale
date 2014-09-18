@@ -138,12 +138,15 @@ class Collection(filesystem.Collection):
         if os.path.exists(path):
             if must_not_exist:
                 return
+            commitmessage = "Modify %s" % name
+        else:
+            commitmessage = "Add %s" % name
 
         # Still parse to make sure we handle the items correctly
         items = self._parse(
                 text, (ical.Timezone, ical.Event, ical.Todo, ical.Journal, ical.Card), name)
         new_text = ical.serialize(self.tag, self.headers, items)
-        with filesystem.open(path, "w") as fd:
+        with filesystem.open(path, "w", commitmessage = commitmessage) as fd:
             fd.write(new_text)
 
     def append(self, name, text):
